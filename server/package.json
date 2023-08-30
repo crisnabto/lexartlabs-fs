@@ -5,7 +5,8 @@
   "main": "./src/api/server.js",
   "scripts": {
     "dev": "nodemon src/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "sequelize db:drop && sequelize db:create && sequelize db:migrate && sequelize db:seed:all && nodemon src/server.js"
   },
   "keywords": [],
   "author": "",
