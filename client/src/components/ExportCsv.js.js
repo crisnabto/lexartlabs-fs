@@ -49,7 +49,7 @@ const ExportCSVPage = () => {
                     <div className="chatbox">
                         {chatHistory.map((groupedArray, index) => (
                             <div key={index}>
-                                <CSVLink data={groupedArray} filename={`export_group_${index}.csv`}>
+                                <CSVLink data={groupedArray} filename={`Conversation user #${index + 1} - ${groupedArray[0].createdAt}.csv`}>
                                     {`Conversation user #${index + 1} - ${groupedArray[0].createdAt}`}
                                 </CSVLink>
                             </div>

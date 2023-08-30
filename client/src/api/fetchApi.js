@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-const defaultPort = 3001;
+// const defaultPort = 3001;
 
-const port = process.env.REACT_APP_BACKEND_PORT || defaultPort;
+// const port = process.env.REACT_APP_BACKEND_PORT || defaultPort;
 
 const api = axios.create({
-  baseURL: `http://localhost:${port}`,
+  baseURL: 'https://lexartlabs-fs-production.up.railway.app', // baseURL: `http://localhost:${port}`,
 });
 
 export const validateLogin = async (name, password) => {
