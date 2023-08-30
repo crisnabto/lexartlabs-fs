@@ -6,7 +6,7 @@ const { User } = require('../database/models');
 
 const validateData = (params) => {
     const schema = Joi.object({
-        username: Joi.string().required(),
+        name: Joi.string().required(),
         password: Joi.string().min(6).required(),
     });
 
@@ -17,10 +17,13 @@ const validateData = (params) => {
     return value;
 };
 
-const login = async ({ email, password }) => {
+const login = async ({ name, password }) => {
+    console.log(name, password)
     const user = await User.findOne({
-        where: { email },
+        where: { name },
     });
+
+    console.log(user, 'aqui user')
 
     const checkPassword = md5(password);
 
@@ -32,9 +35,16 @@ const login = async ({ email, password }) => {
 
     const token = jwt.createToken(userWithoutPassword);
 
-    const { name, id } = userWithoutPassword;
+    const { id } = userWithoutPassword;
 
-    return ({ id, email, name, token });
+    return ({ id, name, token });
+}
+
+const createUser = async ({ name, password }) => {
+    const passwordHash = md5(password);
+    const newUser = await User.create({ name, password: passwordHash })
+    const { password: _, ...userNoPassword } = newUser.dataValues;
+    return { status: null, message: userNoPassword }
 }
 
 const getAll = async () => {
@@ -46,5 +56,6 @@ const getAll = async () => {
 module.exports = {
     getAll,
     validateData,
-    login
+    login,
+    createUser
 };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { CSVLink } from 'react-csv';
-import { validateLogin } from '../api/fetchApi';
+import { validateLogin, registerNewUser } from '../api/fetchApi';
 import { formatMessages } from '../utils/formatMessages';
 import { saveChat } from '../api/fetchApi';
 import '../css/chatbot.css';
@@ -16,7 +16,10 @@ function Chatbot() {
     const [firstMessage, setFirstMessage] = useState(true);
     const [passMsg, setPassMsg] = useState(false);
     const [loanOption, setLoanOption] = useState({ url: '', text: '' });
-    const [datetime, setDatetime] = useState(false);
+    const [allMessages, setAllMessages] = useState(false);
+    const [userId, setUserId] = useState();
+    const [register, setRegister] = useState(false);
+    const [newUser, setNewUser] = useState(false);
     const history = useHistory();
 
     const validateMessage = (userMessage, botMessage1, fromUser, type, botMessage2) => {
@@ -38,16 +41,26 @@ function Chatbot() {
         setLogin(true);
     }
 
-    const validateLogin = (newMessage) => {
-        setTimeout(() => {
+    const validateUserData = (newMessage) => {
+        setTimeout( async () => {
             const botResponse1 = { text: `Please wait...`, fromUser: false, type: 'text' };
             validateMessage(newMessage, botResponse1.text, false, 'text');
             setMessages([...messages, newMessage, botResponse1]);
-            const minLength = 6;
-            const passwordIsValid = newMessage.text.length >= minLength;
+            let passwordIsValid;
+            try {
+                const data = await validateLogin(getUserName, newMessage.text);
+                setUserId(data.id);
+                passwordIsValid = true;
+                console.log(data)
+            } catch (error) {
+                passwordIsValid = false;
+            }
+
+            // const minLength = 6;
+            // const passwordIsValid = newMessage.text.length >= minLength;
             const botResponse2Text = passwordIsValid
                 ? `All good! How can I help you today, ${getUserName}?`
-                : 'Your password must have at least 6 characters. Please try again!';
+                : 'Invalid fields. Please try again or type Register to sign up';
             const botResponse = { text: botResponse2Text, fromUser: false, type: 'text' }
 
             validateMessage(newMessage, botResponse1, false, 'text', botResponse);
@@ -60,8 +73,21 @@ function Chatbot() {
         }, 1500);
     };
 
-    const validateUser = async (username) => {
-        const data = await validateLogin(username);
+    const registerUser = async (input) => {
+        const parts = input.split(' ');
+        const username = parts[0];
+        const password = parts[1];
+        const id = await registerNewUser(username, password);
+        setUserId(id.id);
+        const newMessage = { text: '**** ****', fromUser: true, type: 'text' };
+        setMessages([...messages, newMessage]);
+        setShowEllipsis(true);
+        validateMessage(newMessage, `Registered successfully! How can I help you today, ${id.name}?`, false, 'text');
+        setUserName(id.name);
+        setNewUser(false);
+        setLogin(false);
+        setPassMsg(false)
+        // sendMessage()
     }
 
     const sendMessage = async () => {
@@ -74,23 +100,34 @@ function Chatbot() {
         setInputMessage('');
         setShowEllipsis(true);
 
-        if (passMsg) {
+        if (inputMessage.toLowerCase().includes('register') && !firstMessage) {
+            setRegister(true);
+            validateMessage(newMessage, 'Sure! Please provide a username and a password. Make sure to separate them with a space. ', false, 'text')
+            setNewUser(true);
+        } else if (newUser){
+            // setRegister(false);
+            registerUser(inputMessage)
+        }
+        else if (passMsg && !register) {
             setUserName(newMessage.text);
             validatePassword(newMessage);
-        } else if (login) {
-            validateLogin(newMessage);
-        } else if (terms.some((word) => inputMessage.toLowerCase().includes(word)) && firstMessage) {
+        } 
+        else if (login) {
+            validateUserData(newMessage);
+        } 
+        else if (terms.some((word) => inputMessage.toLowerCase().includes(word)) && firstMessage) {
             setPassMsg(true);
-            validateMessage(newMessage, 'Hello! To start a conversation please tell me your username: ', false, 'text')
+            validateMessage(newMessage, 'Hello! To start a conversation please tell me your username or type Register to sign up:  ', false, 'text')
             setFirstMessage(false);
-        } else if (inputMessage.toLowerCase().includes('loan') && !firstMessage) {
+        } 
+        else if (inputMessage.toLowerCase().includes('loan') && !firstMessage && !newUser) {
             validateMessage(newMessage, ['Do you want to apply for a loan?', 'Loan conditions', 'Help'], false, 'options')
-        } else if (inputMessage.toLowerCase().includes('goodbye') && !firstMessage && !passMsg) {
-            const chatHistory = formatMessages(messages);
+        } 
+        else if (inputMessage.toLowerCase().includes('goodbye') && !firstMessage && !passMsg) {
+            const chatHistory = formatMessages(messages, userId);
+            setAllMessages(chatHistory);
             saveChat(chatHistory);
             validateMessage(newMessage, 'See you! I hope my assistance has been helpful.', false, 'goodbye')
-            const timeStamp = new Date();
-            setDatetime(timeStamp)
 
         } else {
             validateMessage(newMessage, 'Sorry, I didn\'t understand your message.', false, 'text')
@@ -182,7 +219,7 @@ function Chatbot() {
                                     <div>
                                         {message.text}
                                         <br />
-                                        <CSVLink data={messages} filename={'conversation-history.csv'} className='csv-link'>
+                                        <CSVLink data={allMessages} filename={'conversation-history.csv'} className='csv-link'>
                                             Exportar para CSV
                                         </CSVLink>
                                     </div>

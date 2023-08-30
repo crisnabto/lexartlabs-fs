@@ -1,10 +1,10 @@
-export const formatMessages = (messages) => {
+export const formatMessages = (messages, userId) => {
     console.log(messages);
     const chatData = []
 
     messages.map((msg) => {
         const chat = {
-            userId: 1,
+            userId,
             message: msg.text,
             sender: msg.fromUser ? 'User' : 'Bot'
         }

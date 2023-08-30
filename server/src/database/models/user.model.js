@@ -6,7 +6,6 @@ const UserModel = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER
         },
         name: DataTypes.STRING,
-        email: DataTypes.STRING,
         password: DataTypes.STRING,
     }, {
         timestamps: false

@@ -8,8 +8,13 @@ const api = axios.create({
   baseURL: `http://localhost:${port}`,
 });
 
-export const validateLogin = async (email, password) => {
-  const result = await api.post('/login', { email, password });
+export const validateLogin = async (name, password) => {
+  const result = await api.post('/login', { name, password });
+  return result.data;
+};
+
+export const registerNewUser = async (name, password) => {
+  const result = await api.post('/register', { name, password });
   return result.data;
 };
 

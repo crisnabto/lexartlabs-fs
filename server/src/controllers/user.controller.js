@@ -1,16 +1,25 @@
 const UserService = require('../services/user.service');
 
 const login = async (req, res) => {
-    const { email, password, message } = await UserService.validateData(req.body);
+    // const { name, password, message } = await UserService.validateData(req.body);
+    const { name, password } = req.body;
     console.log(req.body)
 
-    if (message) return res.status(400).json({ message });
+    // if (message) return res.status(400).json({ message });
 
-    const token = await UserService.login({ email, password });
+    const token = await UserService.login({ name, password });
 
     if (token === null) return res.status(404).json({ message: "User not found" });
 
     return res.status(200).json(token);
+}
+
+const registerUser = async (req, res) => {
+    const { name, password } = req.body;
+    const { status, message } = await UserService.createUser({ name, password });
+    if (status) return res.status(status).json({ message });
+
+    return res.status(201).json(message);
 }
 
 const getAll = async (_req, res) => {
@@ -52,5 +61,6 @@ const chatResponse = async (req, res) => {
 module.exports = {
     getAll,
     login,
-    chatResponse
+    chatResponse,
+    registerUser
 };

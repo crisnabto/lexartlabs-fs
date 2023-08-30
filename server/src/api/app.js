@@ -14,4 +14,6 @@ app.post('/login', User.login);
 
 app.post('/chat', Chat.createNewChat);
 
+app.post('/register', User.registerUser)
+
 module.exports = app;
