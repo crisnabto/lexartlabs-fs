@@ -18,12 +18,9 @@ const validateData = (params) => {
 };
 
 const login = async ({ name, password }) => {
-    console.log(name, password)
     const user = await User.findOne({
         where: { name },
     });
-
-    console.log(user, 'aqui user')
 
     const checkPassword = md5(password);
 

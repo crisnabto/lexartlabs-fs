@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import { CSVLink } from 'react-csv';
 import { validateLogin, registerNewUser } from '../api/fetchApi';
 import { formatMessages } from '../utils/formatMessages';
+import { loanOptions } from '../utils/loanOptions';
 import { saveChat } from '../api/fetchApi';
+import Header from './Header';
 import '../css/chatbot.css';
+import { saveToLocal } from '../utils/saveToLocal';
 
 function Chatbot() {
     const [messages, setMessages] = useState([]);
@@ -16,7 +18,6 @@ function Chatbot() {
     const [firstMessage, setFirstMessage] = useState(true);
     const [passMsg, setPassMsg] = useState(false);
     const [loanOption, setLoanOption] = useState({ url: '', text: '' });
-    const [allMessages, setAllMessages] = useState(false);
     const [userId, setUserId] = useState();
     const [register, setRegister] = useState(false);
     const [newUser, setNewUser] = useState(false);
@@ -42,28 +43,27 @@ function Chatbot() {
     }
 
     const validateUserData = (newMessage) => {
-        setTimeout( async () => {
+        setTimeout(async () => {
             const botResponse1 = { text: `Please wait...`, fromUser: false, type: 'text' };
-            validateMessage(newMessage, botResponse1.text, false, 'text');
-            setMessages([...messages, newMessage, botResponse1]);
+            // validateMessage(newMessage, botResponse1.text, false, 'text');
+            const message = { text: '********', fromUser: true, type: 'text' };
+            setMessages([...messages, message, botResponse1]);
             let passwordIsValid;
             try {
                 const data = await validateLogin(getUserName, newMessage.text);
                 setUserId(data.id);
+                saveToLocal('userId', data.id);
                 passwordIsValid = true;
-                console.log(data)
             } catch (error) {
                 passwordIsValid = false;
             }
 
-            // const minLength = 6;
-            // const passwordIsValid = newMessage.text.length >= minLength;
             const botResponse2Text = passwordIsValid
                 ? `All good! How can I help you today, ${getUserName}?`
                 : 'Invalid fields. Please try again or type Register to sign up';
             const botResponse = { text: botResponse2Text, fromUser: false, type: 'text' }
 
-            validateMessage(newMessage, botResponse1, false, 'text', botResponse);
+            validateMessage(message, botResponse1, false, 'text', botResponse);
             if (!passwordIsValid) {
                 setPassMsg(false);
                 setLogin(true);
@@ -83,12 +83,24 @@ function Chatbot() {
         setMessages([...messages, newMessage]);
         setShowEllipsis(true);
         validateMessage(newMessage, `Registered successfully! How can I help you today, ${id.name}?`, false, 'text');
+        saveToLocal('userId', id.id);
         setUserName(id.name);
         setNewUser(false);
         setLogin(false);
         setPassMsg(false)
-        // sendMessage()
     }
+
+    const setRegisterAndNewUser = (newMessage, setRegister, setNewUser, validateMessage) => {
+        setRegister(true);
+        validateMessage(newMessage, 'Sure! Please provide a username and a password. Make sure to separate them with a space. ', false, 'text');
+        setNewUser(true);
+    };
+
+    const setPassMsgAndValidateFirstMessage = (newMessage, setPassMsg, setFirstMessage, validateMessage) => {
+        setPassMsg(true);
+        validateMessage(newMessage, 'Hello! To start a conversation please tell me your username or type Register to sign up:  ', false, 'text');
+        setFirstMessage(false);
+    };
 
     const sendMessage = async () => {
         if (inputMessage.trim() === '') return;
@@ -101,34 +113,27 @@ function Chatbot() {
         setShowEllipsis(true);
 
         if (inputMessage.toLowerCase().includes('register') && !firstMessage) {
-            setRegister(true);
-            validateMessage(newMessage, 'Sure! Please provide a username and a password. Make sure to separate them with a space. ', false, 'text')
-            setNewUser(true);
-        } else if (newUser){
-            // setRegister(false);
+            setRegisterAndNewUser(newMessage, setRegister, setNewUser, validateMessage);
+        } else if (newUser) {
             registerUser(inputMessage)
         }
         else if (passMsg && !register) {
             setUserName(newMessage.text);
             validatePassword(newMessage);
-        } 
+        }
         else if (login) {
             validateUserData(newMessage);
-        } 
+        }
         else if (terms.some((word) => inputMessage.toLowerCase().includes(word)) && firstMessage) {
-            setPassMsg(true);
-            validateMessage(newMessage, 'Hello! To start a conversation please tell me your username or type Register to sign up:  ', false, 'text')
-            setFirstMessage(false);
-        } 
+            setPassMsgAndValidateFirstMessage(newMessage, setPassMsg, setFirstMessage, validateMessage);
+        }
         else if (inputMessage.toLowerCase().includes('loan') && !firstMessage && !newUser) {
             validateMessage(newMessage, ['Do you want to apply for a loan?', 'Loan conditions', 'Help'], false, 'options')
-        } 
+        }
         else if (inputMessage.toLowerCase().includes('goodbye') && !firstMessage && !passMsg) {
             const chatHistory = formatMessages(messages, userId);
-            setAllMessages(chatHistory);
             saveChat(chatHistory);
             validateMessage(newMessage, 'See you! I hope my assistance has been helpful.', false, 'goodbye')
-
         } else {
             validateMessage(newMessage, 'Sorry, I didn\'t understand your message.', false, 'text')
         }
@@ -156,36 +161,17 @@ function Chatbot() {
     }, [showEllipsis]);
 
     const handleOptionClick = (option) => {
-        let newMessage;
-        let botMessage;
-        let link;
-
-        if (option === 0) {
-            setLoanOption({ url: 'https://www.investopedia.com/articles/personal-finance/010516/how-apply-personal-loan.asp', text: 'Loan Application Guide' });
-            newMessage = { text: 'Apply for a loan', fromUser: true, type: 'text' };
-            botMessage = 'Interested in applying for a loan? We\'ve got you covered! We offer loans for various needs. To get started, you need to provide us with some basic information about yourself. For more detailed instructions on how to apply, check out our ';
-            link = 'Loan Application Guide';
-        } else if (option === 1) {
-            setLoanOption({ url: 'https://www.investopedia.com/loan-terms-5075341', text: 'Loan Conditions Page' });
-            newMessage = { text: 'Loan conditions', fromUser: true, type: 'text' };
-            botMessage = 'Our loan conditions are designed to provide you with flexibility and convenience. We offer competitive interest rates and various repayment options. For more detailed information on our loan conditions, please read our ';
-            link = 'Loan Conditions Page';
-        } else {
-            setLoanOption({ url: 'https://www.investopedia.com/personal-loan-calculator-5082130', text: 'Help' });
-            newMessage = { text: 'Help', fromUser: true, type: 'text' };
-            botMessage = 'Need help with calculating your loan options? Our loan calculator can help you estimate your monthly payments and total interest. For more information, please visit our ';
-            link = 'Loan Calculator Page';
-        }
-
+        const { loanOption, newMessage, botMessage, link } = loanOptions(option);
+        setLoanOption(loanOption)
         setMessages([...messages, newMessage]);
         setShowEllipsis(true);
         validateMessage(newMessage, [botMessage, link], false, 'loan');
     };
 
-
     return (
         <div className="phone-simulator">
             <div className="phone-frame">
+                <Header />
                 <div className="chatbot-container">
                     <div className="chatbox">
                         {messages.map((message, messageIndex) => (
@@ -219,9 +205,12 @@ function Chatbot() {
                                     <div>
                                         {message.text}
                                         <br />
-                                        <CSVLink data={allMessages} filename={'conversation-history.csv'} className='csv-link'>
-                                            Exportar para CSV
-                                        </CSVLink>
+                                        <button
+                                            onClick={() => history.push('/history')}
+                                            className="loan-button"
+                                        >
+                                            Chat history
+                                        </button>
                                     </div>
                                 ) : null}
                             </div>
@@ -235,7 +224,7 @@ function Chatbot() {
                 <div className="input-container">
                     <input
                         type="text"
-                        placeholder="Type your message..."
+                        placeholder="Say hello..."
                         value={inputMessage}
                         disabled={showEllipsis}
                         onChange={(e) => setInputMessage(e.target.value)}
@@ -246,6 +235,7 @@ function Chatbot() {
                         }}
                     />
                     <button
+                    className='history-btn'
                         onClick={sendMessage}
                         disabled={showEllipsis}
                     >

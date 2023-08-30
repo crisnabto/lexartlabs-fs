@@ -16,4 +16,8 @@ app.post('/chat', Chat.createNewChat);
 
 app.post('/register', User.registerUser)
 
+app.get('/chat/:id', Chat.getAllChats)
+
+app.get('/chat-date/:id', Chat.getDate)
+
 module.exports = app;

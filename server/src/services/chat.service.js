@@ -1,7 +1,6 @@
 const { Chat, UserChat } = require('../database/models');
 
 const createNewChat = async (Data) => {
-    console.log(Data.chatData);
     const formatData = Data.chatData;
     const newChat = await Chat.create();
 
@@ -17,4 +16,20 @@ const createNewChat = async (Data) => {
     return newChat;
 }
 
-module.exports = { createNewChat };
+const getAllChats = async (id) => {
+    const chats = await UserChat.findAll({
+        where: { user_id: id}
+    })
+
+    return chats;
+}
+
+const getDate = async (id) => {
+    const chat = await Chat.findByPk(id, {
+        attributes: ['createdAt']
+    });
+
+    return chat;
+}
+
+module.exports = { createNewChat, getAllChats, getDate };

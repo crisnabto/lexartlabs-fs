@@ -18,10 +18,15 @@ export const registerNewUser = async (name, password) => {
   return result.data;
 };
 
-// export const chatResponse = async (message) => {
-//     const result = await api.post('/chat', { message });
-//     return result.data;
-// };
+export const getAllChats = async (id) => {
+  const result = await api.get(`/chat/${id}`);
+  return result.data;
+};
+
+export const getDate = async (id) => {
+  const result = await api.get(`/chat-date/${id}`);
+  return result.data;
+}
 
 export const saveChat = async (chatData) => {
   const result = await api.post('/chat', { chatData })

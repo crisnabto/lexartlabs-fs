@@ -27,7 +27,7 @@ module.exports = {
       },
       message: {
         allowNull: false,
-        type: Sequelize.STRING
+        type: Sequelize.TEXT('long')
       },
       sender: {
         allowNull: false,

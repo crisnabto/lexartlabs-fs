@@ -2,7 +2,7 @@
     display: flex;
     flex-direction: column;
     padding: 10px;
-    margin-bottom: 5px;
+    margin-bottom: 15px;
 }
 
 .user-message {
@@ -86,10 +86,10 @@
     position: relative;
     background-color: white;
     border-top: 1px solid lightgray;
-    top: 70px;
+    top: 30px;
     left: 74px;
     width: 250px;
-    height: 440px;
+    height: 420px;
     overflow-y: scroll;
     scroll-behavior: smooth;
 }
@@ -109,6 +109,76 @@
 }
 
 .loan-button:hover {
+    background-color: lightblue;
+}
+
+.header {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content:space-around;
+    align-items: center;
+    padding-top: 10px;
+    height: 50px;
+    top: 25px;
+    left: 74px;
+    width: 250px;
+    /* border: 1px solid red; */
+}
+
+.header img {
+    width: 50px;
+}
+
+.header button {
+    width: 40%;
+    padding: 3px;
+    background-color: white;
+    color: #2980b9;
+    border: 1px solid white;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.2s ease-in-out;
+}
+
+.header button:hover {
+    background-color: lightblue;
+}
+
+.history-btn {
+    width: 40%;
+    padding: 3px;
+    background-color: white;
+    color: #2980b9;
+    border: 1px solid white;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.2s ease-in-out;
+}
+
+.newchat-btn {
+    margin-top: 5px;
+    align-self: center;
+    width: 80%;
+    padding: 3px;
+    background-color: white;
+    color: #2980b9;
+    border: 1px solid white;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.2s ease-in-out;
+}
+
+.input-container input {
+    border: 1px solid lightgray;
+    border-radius: 2px;
+    padding: 3px;
+}
+
+.history-btn:hover {
     background-color: lightblue;
 }
 

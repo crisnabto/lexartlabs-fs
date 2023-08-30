@@ -1,34 +1,68 @@
-import React from 'react';
-import { CSVLink } from 'react-csv'; // Instale a biblioteca react-csv
-import Papa from 'papaparse';
+import React, { useEffect, useState } from 'react';
+import Header from './Header';
+import '../css/chatbot.css';
+import { getAllChats, getDate } from '../api/fetchApi';
+import { formatDateTime } from '../utils/formatDate';
+import { CSVLink } from 'react-csv';
+import { useHistory } from 'react-router-dom';
 
-const ExportCSVPage = ({ conversations }) => {
-    // Função para gerar o conteúdo CSV
-    const generateCSVContent = () => {
-        const csvData = [];
-        csvData.push(['User', 'Message']); // Cabeçalhos
+const ExportCSVPage = () => {
+    const [chatHistory, setChatHistory] = useState([]);
+    const history = useHistory();
 
-        conversations.forEach((conversation) => {
-            const lastUserMessage = conversation.find((message) => message.fromUser);
-            if (lastUserMessage) {
-                csvData.push([
-                    lastUserMessage.fromUser ? 'User' : 'Bot',
-                    lastUserMessage.timestamp.toLocaleDateString(), // Adapte para obter a data correta
-                    lastUserMessage.text
-                ]);
+    const getChatHistory = async (id) => {
+        const chats = await getAllChats(id);
+        const groupedByChatId = chats.reduce((result, obj) => {
+            const chatId = obj.chatId;
+            if (!result[chatId]) {
+                result[chatId] = [];
             }
-        });
+            result[chatId].push(obj);
+            return result;
+        }, {});
+        const groupedArrays = Object.values(groupedByChatId);
+        setChatHistory(groupedArrays);
 
-        return csvData;
-    };
+        const updatedGroupedArrays = await Promise.all(
+            groupedArrays.map(async (group) => {
+                const chatId = group[0].chatId;
+                const chat = await getDate(chatId);
+                const formated = formatDateTime(chat.createdAt);
+                const createdAt = chat ? formated : null;
+                return group.map((obj) => ({ ...obj, createdAt }));
+            })
+        );
 
-    const csvContent = Papa.unparse(generateCSVContent()); // Gere o CSV
+        setChatHistory(updatedGroupedArrays);
+    }
+
+    useEffect(() => {
+        const id = JSON.parse(localStorage.getItem('userId'));
+        getChatHistory(id);
+    }, [])
 
     return (
-        <div>
-            <h1>Export Conversation History to CSV</h1>
-            <CSVLink data={csvContent} filename={'conversation_history.csv'}>Export CSV</CSVLink>
+        <div className="phone-simulator">
+            <div className="phone-frame">
+                <Header />
+                <div className="chatbot-container">
+                    <div className="chatbox">
+                        {chatHistory.map((groupedArray, index) => (
+                            <div key={index}>
+                                <CSVLink data={groupedArray} filename={`export_group_${index}.csv`}>
+                                    {`Conversation user #${index + 1} - ${groupedArray[0].createdAt}`}
+                                </CSVLink>
+                            </div>
+                        ))}
+                        <button onClick={() => history.push('/chatbot')} className="newchat-btn">New chat</button>
+
+                    </div>
+
+                </div>
+
+            </div>
         </div>
+
     );
 };
 

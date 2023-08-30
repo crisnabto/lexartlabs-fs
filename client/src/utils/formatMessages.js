@@ -1,5 +1,4 @@
 export const formatMessages = (messages, userId) => {
-    console.log(messages);
     const chatData = []
 
     messages.map((msg) => {
@@ -12,6 +11,5 @@ export const formatMessages = (messages, userId) => {
         return chat;
     })
 
-    console.log(chatData);
     return chatData;
 }
