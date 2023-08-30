@@ -84,8 +84,7 @@ npm start
 
 ## Preview
 
-https://github.com/crisnabto/lexartlabs-fs/assets/102383703/46f21f9e-985c-40a5-b61b-50ac0a84a5d4
-
+https://github.com/crisnabto/lexartlabs-fs/assets/102383703/6d894649-3c1d-428f-a111-5bbca80ce08a
 
 
 
