@@ -75,7 +75,7 @@
 }
 
 .phone-frame {
-    background: url('/Users/crisnabezerra/Projetos/Lexart/client/public/phone.png') no-repeat;
+    background: url('/public/phone.png') no-repeat;
     background-size: cover;
     width: 380px;
     height: 600px;
