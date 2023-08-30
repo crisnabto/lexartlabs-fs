@@ -1,6 +1,6 @@
 # Lexart Chatbot
 
-This repository contains the source code for a fullstack project of a chatbot. The project involves a chatbot capable of responding to programmed commands. It is a web application developed with React and a RESTful API built with Node.js and Express. In addition, the database used is MySQL using Sequelize as ORM. This project is part of the technical challenge of the company Lexart.
+This repository contains the source code for a fullstack project of a chatbot. The project involves a chatbot capable of responding to programmed commands. It is a web application developed with React and a RESTful API built with Node.js and Express. In addition, the database used is MySQL using Sequelize as ORM. This project is part of the technical challenge of the company Lexart. The chatbot application was deployed and can be found on this link: [Chatbot](https://lexartlabs-fs-rwhy.vercel.app/chatbot)
 
 ## :clipboard: Requisitos / Requirements
  `MySQL`
@@ -71,12 +71,15 @@ npm start
 - [Axios](https://axios-http.com/ptbr/docs/intro) - HTTP client
   
 - [Sequelize](https://sequelize.org) - ORM
+  
+- [Railway](https://railway.app/) - Deploy Backend and Database
+
+- [Vercel](https://vercel.com/) - Deplot Frontend
 
 ## :hammer_and_wrench: Next steps
 
 - Refactor code by organizing it better in smaller components
 - Improve login function, avoiding user to register with same name more than once
-- Deploy
 
 ## Preview
 
