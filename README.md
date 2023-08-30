@@ -46,6 +46,7 @@ npm start
 
 - To start a conversation with the chatbot you need to type 'hello'
 - After that, the bot will respond with a message requesting your username, and if you are not registered, you have the option to do so by typing 'register'
+- To test existing credentials, type 'john' when username is required and 'fulana@123' when password is required
 - If you enter your existing username, the bot will request your password. If your credentials match with the data stored in the database, the bot will go on and ask what you need
 - If your credentials don't match, the bot will respond with an error and you can try to log in again or register
 - The bot understands the word 'loan', and by typing this word it will provide you 3 options about loans, which you can click to choose
